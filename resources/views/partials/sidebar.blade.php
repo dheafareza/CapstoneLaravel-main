@@ -121,14 +121,14 @@
   <li class="nav-heading ">Transaksi</li>
 
   <li class="nav-item">
-    <a class="nav-link collapsed" href="pemasukan">
+    <a class="nav-link collapsed" href="{{ route('pemasukan.index') }}">
       <i class="bi bi-arrow-up"></i>
       <span style="font-size: 12px; font-family: 'Poppins', sans-serif;">Pendapatan</span>
     </a>
   </li><!-- End Profile Page Nav -->
 
   <li class="nav-item">
-    <a class="nav-link collapsed" href="pengeluaran">
+    <a class="nav-link collapsed" href="{{ route('pengeluaran.index') }}">
       <i class="bi bi-arrow-down"></i>
       <span style="font-size: 12px; font-family: 'Poppins', sans-serif;">Pengeluaran</span>
     </a>
@@ -148,22 +148,22 @@
   <li class="nav-heading ">TAGIHAN</li>
 
   <li class="nav-item">
-    <a class="nav-link collapsed" href="hutang">
+    <a class="nav-link collapsed" href="{{ route('hutang.index') }}">
       <i class="bi bi-bar-chart-fill"></i>
       <span style="font-size: 12px; font-family: 'Poppins', sans-serif;">Hutang</span>
     </a>
   </li><!-- End Register Page Nav -->
 
   <li class="nav-item">
-    <a class="nav-link collapsed" href="laporan">
+    <a class="nav-link collapsed" href="{{ route('laporan.index') }}">
       <i class="bi bi-table"></i>
       <span style="font-size: 12px; font-family: 'Poppins', sans-serif;">Laporan</span>
     </a>
   </li><!-- End Login Page Nav -->
 
   <li class="nav-item">
-    <a class="nav-link collapsed" href="laporan/stok">
-      <i class="bi bi-building"></i>
+    <a class="nav-link collapsed" href="{{ route('laporan.stok.index') }}">
+      <i class="bi bi-clipboard-data"></i>
       <span style="font-size: 12px; font-family: 'Poppins', sans-serif;">Laporan Stok Barang</span>
     </a>
   </li><!-- End Login Page Nav -->
@@ -172,7 +172,7 @@
   <li class="nav-heading ">Barang</li>
 
   <li class="nav-item">
-    <a class="nav-link collapsed" href="stok_barang">
+    <a class="nav-link collapsed" href="{{ route('stok_barang.index') }}">
       <i class="bi bi-bag-check-fill"></i>
       <span style="font-size: 12px; font-family: 'Poppins', sans-serif;">Stok Barang</span>
     </a>

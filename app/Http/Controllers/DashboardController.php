@@ -20,6 +20,10 @@ class DashboardController extends Controller
         // Pemasukan hari ini
         $pemasukan_hari_ini = Pemasukan::whereDate('tgl_pemasukan', Carbon::today())->sum('jumlah');
 
+        $pemasukan_hari_ini_data = Pemasukan::whereDate('tgl_pemasukan', Carbon::today())
+        ->with('sumberPemasukan')
+        ->get();
+
         // Total pemasukan dan pengeluaran
         $jumlahmasuk = Pemasukan::sum('jumlah');
         $jumlahkeluar = Pengeluaran::sum('jumlah');
@@ -27,23 +31,32 @@ class DashboardController extends Controller
         // Sisa uang
         $uang = $jumlahmasuk - $jumlahkeluar;
 
-        // Data untuk chart area (7 hari terakhir)
+        // Data pendapatan minggu ini (7 hari terakhir tanpa duplikasi hari ini)
+        $pendapatan_mingguan = Pemasukan::whereBetween('tgl_pemasukan', [Carbon::today()->subDays(6), Carbon::today()])
+            ->orderBy('tgl_pemasukan', 'desc')
+            ->with('sumberPemasukan')
+            ->get();
+
+        // Data untuk grafik pendapatan (7 hari terakhir)
+        $chartLabels = [];
         $chartData = [];
-        for ($i = 0; $i < 7; $i++) {
-            $date = Carbon::today()->subDays($i);
+
+        for ($i = 29; $i >= 0; $i--) { // Ambil data dari 29 hari lalu sampai hari ini
+            $date = Carbon::today()->subDays($i)->format('Y-m-d');
+            $chartLabels[] = $date;
             $chartData[] = Pemasukan::whereDate('tgl_pemasukan', $date)->sum('jumlah');
         }
-
-        // Membalik array agar urutannya dari hari ke-7 ke hari ini
-        $chartData = array_reverse($chartData);
 
         return view('master', compact(
             'karyawan',
             'pengeluaran_hari_ini',
             'pemasukan_hari_ini',
+            'pemasukan_hari_ini_data',
             'jumlahmasuk',
             'jumlahkeluar',
             'uang',
+            'pendapatan_mingguan',
+            'chartLabels',
             'chartData'
         ));
     }

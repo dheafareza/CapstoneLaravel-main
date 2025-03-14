@@ -41,8 +41,7 @@
     </div>
     <!-- Form Pilih Tanggal -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Filter Laporan Keuangan Berdasarkan Tanggal</h6>
+        <div class="card-header py-3">Filter Laporan Keuangan Berdasarkan Tanggal
         </div>
         <div class="card-body">
             <form method="GET" action="{{ route('laporan.index') }}" class="row g-3">
@@ -65,12 +64,11 @@
 
     <!-- Tabel Laporan Keuangan -->
     <div class="card shadow mb-4 mt-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Laporan Keuangan</h6>
+        <div class="card-header py-3">Laporan Keuangan
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered">
+                <table class="table table-bordered" id="tabelLaporan">
                     <thead>
                         <tr>
                             <th>Tanggal</th>
@@ -94,30 +92,52 @@
             </div>
         </div>
     </div>
+    <!-- DataTables CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+    <!-- Script DataTables untuk Laporan Keuangan -->
+    <script>
+        $(document).ready(function() {
+            $('#tabelLaporan').DataTable({
+                "language": {
+                    "search": "Cari:",
+                    "lengthMenu": "Tampilkan _MENU_ data",
+                    "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                    "infoEmpty": "Tidak ada data yang tersedia",
+                    "zeroRecords": "Tidak ada data yang cocok",
+                    "paginate": {
+                        "first": "Awal",
+                        "last": "Akhir",
+                        "next": "Berikutnya",
+                        "previous": "Sebelumnya"
+                    }
+                },
+                "pageLength": 10
+            });
+
+            $('#tabelPemasukan_filter input').on('keyup', function() {
+        table.columns(3).search(this.value).draw(); // Kolom ke-4 (indeks 3) adalah Sumber Pemasukan
+    });
+        });
+    </script>
     <!-- Form Export Laporan Keuangan -->
     <div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Export Laporan</h6>
+    <div class="card-header py-3">Export Laporan
     </div>
-    <div class="row mt-3">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h6 class="card-title">Export Pemasukan</h6>
-                    <a href="{{ route('export.pemasukan') }}" class="btn btn-success w-100 mb-2">Excel</a>
-                    <a href="{{ route('export.pemasukan.pdf') }}" class="btn btn-danger w-100">PDF</a>
-                </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+            <a href="{{ route('export.pemasukan') }}" class="btn btn-success w-100 mb-2">
+                    <i class="bi bi-file-earmark-excel"></i> Export Excel
+                </a>
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h6 class="card-title">Export Pengeluaran</h6>
-                    <a href="{{ route('export.pengeluaran') }}" class="btn btn-success w-100 mb-2">Excel</a>
-                    <a href="{{ route('export.pengeluaran.pdf') }}" class="btn btn-danger w-100">PDF</a>
-                </div>
+            <div class="col-md-6">
+            <a href="{{ route('export.pemasukan.pdf') }}" class="btn btn-danger w-100">
+                    <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                </a>
             </div>
-        </div>
     </div>
 </div>
 </div>

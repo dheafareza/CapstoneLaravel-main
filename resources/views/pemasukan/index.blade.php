@@ -21,7 +21,7 @@
     </div>
 
     <!-- Filter Tanggal -->
-    <div class="col-lg-12 col-md-12 mb-4 custom-width-i">
+    <div class="col-lg-12 col-md-12 custom-width-i">
     <div class="card shadow mb-4">
         <div class="card-header py-3">Filter Tanggal</div>
         <div class="card-body">
@@ -29,11 +29,11 @@
                 <div class="row">
                     <div class="col-md-4">
                         <label for="start_date">Tanggal Awal</label>
-                        <input type="date" class="form-control" id="start_date" name="start_date">
+                        <input type="date" class="form-control" id="start_date">
                     </div>
                     <div class="col-md-4">
                         <label for="end_date">Tanggal Akhir</label>
-                        <input type="date" class="form-control" id="end_date" name="end_date">
+                        <input type="date" class="form-control" id="end_date">
                     </div>
                     <div class="col-md-4 d-flex align-items-end">
                         <button type="button" class="btn btn-primary" id="filterBtn">Tampilkan</button>
@@ -109,7 +109,8 @@
                 "next": "Berikutnya",
                 "previous": "Sebelumnya"
             }
-        }
+        },
+        "pageLength": 10
     });
 
     // Filter berdasarkan tanggal
@@ -117,33 +118,26 @@
         var startDate = $('#start_date').val();
         var endDate = $('#end_date').val();
 
-        if (startDate && endDate) {
-            var start = new Date(startDate).getTime();
-            var end = new Date(endDate).getTime();
-            var hasData = false;
+        $.fn.dataTable.ext.search.splice(0, 1);
 
-            table.rows().every(function() {
-                var row = this.data();
-                var rowDate = new Date(row[1]).getTime(); // Ambil tanggal dari kolom ke-2
+        $.fn.dataTable.ext.search.push(
+            function(settings, data, dataIndex) {
+                var date = new Date(data[1]);
+                var start = startDate ? new Date(startDate) : null;
+                var end = endDate ? new Date(endDate) : null;
 
-                if ((isNaN(start) || rowDate >= start) && (isNaN(end) || rowDate <= end)) {
-                    this.nodes().to$().show();
-                    hasData = true;
-                } else {
-                    this.nodes().to$().hide();
+                if ((!startDate || date >= start) && (!endDate || date <= end)) {
+                    return true;
                 }
-            });
-
-            if (!hasData) {
-                $('#tabelPemasukan tbody').html('<tr><td colspan="5" class="text-center">Tidak ada data yang tersedia</td></tr>');
+                return false;
             }
-        }
+        );
+        table.page.len(10).draw();
     });
-
-    // Tambahkan pencarian pada kolom Sumber Pemasukan
+    
     $('#tabelPemasukan_filter input').on('keyup', function() {
         table.columns(3).search(this.value).draw(); // Kolom ke-4 (indeks 3) adalah Sumber Pemasukan
-    });
+    });
 });
 </script>
 

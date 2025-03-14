@@ -21,6 +21,12 @@ Route::get('/', function () {
     return view('master');
 });
 
+Route::get('/laporan/stok', [LaporanStokController::class, 'index'])->name('laporan.stok.index');
+Route::get('/pengeluaran', [PengeluaranController::class, 'index'])->name('pengeluaran.index');
+Route::get('/karyawan', [KaryawanController::class, 'index'])->name('karyawan.index');
+Route::get('/hutang', [HutangController::class, 'index'])->name('hutang.index');
+Route::get('/stok_barang', [StokBarangController::class, 'index'])->name('stok_barang.index');
+
 // Route untuk Dashboard
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth');
 

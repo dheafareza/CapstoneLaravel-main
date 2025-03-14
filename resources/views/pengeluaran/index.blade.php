@@ -21,7 +21,7 @@
     </div>
 
     <!-- Filter Tanggal -->
-    <div class="col-lg-12 col-md-12 mb-4 custom-width-i">
+    <div class="col-lg-12 col-md-12 custom-width-i">
     <div class="card shadow mb-4">
         <div class="card-header py-3">Filter Tanggal</div>
         <div class="card-body">
@@ -117,32 +117,19 @@
         var startDate = $('#start_date').val();
         var endDate = $('#end_date').val();
 
-        if (startDate && endDate) {
-            var start = new Date(startDate).getTime();
-            var end = new Date(endDate).getTime();
-            var hasData = false;
+        $.fn.dataTable.ext.search.push(
+            function(settings, data, dataIndex) {
+                var date = new Date(data[1]);
+                var start = new Date(startDate);
+                var end = new Date(endDate);
 
-            table.rows().every(function() {
-                var row = this.data();
-                var rowDate = new Date(row[1]).getTime(); // Ambil tanggal dari kolom ke-2
-
-                if ((isNaN(start) || rowDate >= start) && (isNaN(end) || rowDate <= end)) {
-                    this.nodes().to$().show();
-                    hasData = true;
-                } else {
-                    this.nodes().to$().hide();
+                if ((!startDate || date >= start) && (!endDate || date <= end)) {
+                    return true;
                 }
-            });
-
-            if (!hasData) {
-                $('#tabelPengeluaran tbody').html('<tr><td colspan="5" class="text-center">Tidak ada data yang tersedia</td></tr>');
+                return false;
             }
-        }
-    });
-
-    // Tambahkan pencarian pada kolom Sumber Pengeluaran
-    $('#tabelPengeluaran_filter input').on('keyup', function() {
-        table.columns(3).search(this.value).draw();
+        );
+        table.draw();
     });
 });
 </script>

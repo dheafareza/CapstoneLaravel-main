@@ -45,7 +45,7 @@
                       </div>
                   </div>
                   <div class="mt-4">
-                      <span class="text-muted small pt-2 ps-1">&nbsp Mingguan: </span>
+                      <span class="text-muted small pt-2 ps-1">&nbsp Total: </span>
                       <span class="text-success small pt-1 fw-bold">Rp. {{ number_format($jumlahmasuk, 2, ',', '.') }}</span>
                   </div>
               </div>
@@ -81,7 +81,7 @@
                           </div>
                       </div>
                       <div class="mt-4">
-                        <span class="text-muted small pt-2 ps-1">&nbsp Mingguan:</span>
+                        <span class="text-muted small pt-2 ps-1">&nbsp Total:</span>
                         <span class="text-success small pt-1 fw-bold"> Rp. {{ number_format($jumlahkeluar, 2, ',', '.') }}</span>
                       </div>
                       <style>
@@ -214,31 +214,35 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <th scope="row"><a href="#">1</a></th>
-                        <td>2025-02-12</td>
-                        <td><a href="#" class="text-primary">Rp. 12.150.000</a></td>
-                        <td>2</td>
-                        <td><span class="badge bg-success">Approved</span></td>
-                      </tr>
-                      <tr>
-                        <th scope="row"><a href="#">2</a></th>
-                        <td>2025-02-12</td>
-                        <td><a href="#" class="text-primary">Rp. 19.730.000</a></td>
-                        <td>1</td>
-                        <td><span class="badge bg-warning">Approved</span></td>
-                      </tr>
-                      
-                    </tbody>
-                  </table>
+                      <!-- Data Hari Ini -->
+          <tr>
+            <th scope="row"><a href="#">1</a></th>
+            <td>{{ date('Y-m-d') }}</td>
+            <td><a href="#" class="text-primary">Rp. {{ number_format($pemasukan_hari_ini, 0, ',', '.') }}</a></td>
+            <td>{{ $pemasukan_hari_ini_data->first()->sumberPemasukan->nama ?? 'Tidak Diketahui' }}</td>
+            <td><span class="badge bg-success">Approved</span></td>
+          </tr>
 
-                </div>
-
-              </div>
-            </div>
+          <!-- Data 6 Hari Sebelumnya -->
+          @foreach ($pendapatan_mingguan ?? [] as $index => $item)
+    @if ($item->tgl_pemasukan != date('Y-m-d'))
+    <tr>
+        <td>{{ $index + 2 }}</td>
+        <td>{{ $item->tgl_pemasukan }}</td>
+        <td><a href="#" class="text-primary">Rp. {{ number_format($item->jumlah, 0, ',', '.') }}</a></td>
+        <td>{{ $item->sumberPemasukan->nama ?? 'Tidak Diketahui' }}</td>
+        <td><span class="badge bg-success">Approved</span></td>
+    </tr>
+    @endif
+@endforeach
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
             <!-- End Recent Sales -->
 
-        <!-- Perbandingan -->
+            <!-- Perbandingan -->
         <div class="col-lg-4">
             <div class="card">
                 <div class="card-body pb-0">
@@ -286,8 +290,53 @@
 
                 </div>
             </div><!-- End Perbandingan -->
+      </div>
+</div>
+<div class="col-lg-8">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Grafik Pendapatan Bulanan</h5>
+            <div id="pendapatanChart" style="min-height: 400px;" class="echart"></div>
+            <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    echarts.init(document.querySelector("#pendapatanChart")).setOption({
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: {!! json_encode($chartLabels) !!}, // Nama bulan/tanggal
+                            axisLabel: {
+                                rotate: 30, // Memiringkan label biar rapi
+                                fontSize: 12
+                            }
+                        },
+                        yAxis: {
+                            type: 'value',
+                            axisLabel: {
+                                formatter: function(value) {
+                                    return 'Rp ' + value.toLocaleString('id-ID'); // Format angka ke Rupiah
+                                }
+                            }
+                        },
+                        series: [{
+                            name: 'Pendapatan',
+                            type: 'line',
+                            data: {!! json_encode($chartData) !!}, // Data pemasukan
+                            smooth: true,
+                            color: 'rgb(46, 202, 106)',
+                            lineStyle: { width: 3 },
+                            areaStyle: { opacity: 0.2 } // Efek area bawah garis
+                        }]
+                    });
+                });
+            </script>
         </div>
-        <!-- End Right side columns -->
-      <!-- </div> -->
+    </div>
+</div>
+
+</div>
+        </div>
+        
 </section>
 @endsection

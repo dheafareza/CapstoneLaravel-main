@@ -2,14 +2,12 @@
 
 namespace App\Exports;
 
-use App\Models\Pemasukan;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Style\Border;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
+use Illuminate\Support\Facades\DB;
 
 class PemasukanExport implements FromCollection, WithHeadings, WithStyles, WithTitle
 {
@@ -23,83 +21,94 @@ class PemasukanExport implements FromCollection, WithHeadings, WithStyles, WithT
 
     public function collection()
     {
-        $pemasukan = Pemasukan::select(
-            'pemasukans.id',
-            'pemasukans.tgl_pemasukan',
-            'pemasukans.jumlah',
-            'sumber_pemasukans.nama as sumber_pemasukan'
-        )
-        ->join('sumber_pemasukans', 'pemasukans.id_sumber_pemasukan', '=', 'sumber_pemasukans.id')
-        ->whereBetween('pemasukans.tgl_pemasukan', [$this->start_date, $this->end_date])
-        ->get();
+        // Ambil data pemasukan
+        $pemasukan = DB::table('pemasukans')
+            ->select(
+                'pemasukans.tgl_pemasukan as tanggal',
+                'pemasukans.jumlah',
+                'sumber_pemasukans.nama as sumber',
+                DB::raw("'Pemasukan' as jenis")
+            )
+            ->join('sumber_pemasukans', 'pemasukans.id_sumber_pemasukan', '=', 'sumber_pemasukans.id')
+            ->whereBetween('pemasukans.tgl_pemasukan', [$this->start_date, $this->end_date])
+            ->get();
 
-        // Hitung total pemasukan
-        $totalPemasukan = $pemasukan->sum('jumlah');
+        // Ambil data pengeluaran
+        $pengeluaran = DB::table('pengeluarans')
+            ->select(
+                'pengeluarans.tgl_pengeluaran as tanggal',
+                'pengeluarans.jumlah',
+                'sumber_pengeluarans.nama as sumber',
+                DB::raw("'Pengeluaran' as jenis")
+            )
+            ->join('sumber_pengeluarans', 'pengeluarans.id_sumber_pengeluaran', '=', 'sumber_pengeluarans.id')
+            ->whereBetween('pengeluarans.tgl_pengeluaran', [$this->start_date, $this->end_date])
+            ->get();
 
-        // Tambahkan nomor urut ke data pemasukan
-        $data = $pemasukan->map(function ($item, $index) {
-            return [
-                'No' => $index + 1,
-                'Tgl Pemasukan' => $item->tgl_pemasukan,
-                'Jumlah' => $item->jumlah,
-                'Sumber' => $item->sumber_pemasukan,
+        // Konversi koleksi menjadi array dan tambahkan header tabel kedua dengan baris kosong sebagai pemisah
+        $data = [];
+        
+        // Header Pemasukan
+        $data[] = ['TANGGAL', 'JUMLAH', 'SUMBER', 'JENIS'];
+        
+        // Data Pemasukan
+        foreach ($pemasukan as $item) {
+            $data[] = [
+                $item->tanggal,
+                $item->jumlah,
+                $item->sumber,
+                $item->jenis
             ];
-        });
+        }
 
-        // Tambahkan total pemasukan di akhir
-        $data->push([
-            'No' => '',
-            'Tgl Pemasukan' => 'Total Pemasukan',
-            'Jumlah' => $totalPemasukan,
-            'Sumber' => '',
-        ]);
+        // Tambah baris kosong sebagai pemisah
+        $data[] = ["", "", "", ""];
 
-        return $data;
+        // Header Pengeluaran
+        $data[] = ['TANGGAL', 'JUMLAH', 'SUMBER', 'JENIS'];
+        
+        // Data Pengeluaran
+        foreach ($pengeluaran as $item) {
+            $data[] = [
+                $item->tanggal,
+                $item->jumlah,
+                $item->sumber,
+                $item->jenis
+            ];
+        }
+
+        return collect($data);
     }
 
     public function headings(): array
     {
-        return ['No', 'Tgl Pemasukan', 'Jumlah', 'Sumber'];
+        return []; // Headings sudah ditambahkan dalam data
     }
 
     public function styles(Worksheet $sheet)
     {
+        // Style untuk judul tabel pemasukan
         $sheet->getStyle('A1:D1')->applyFromArray([
-            'font' => [
-                'bold' => true,
-                'color' => ['argb' => 'FFFFFFFF'],
-            ],
-            'fill' => [
-                'fillType' => Fill::FILL_SOLID,
-                'color' => ['argb' => 'FF4CAF50'],
-            ],
-            'alignment' => [
-                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-            ],
-        ]);
-
-        $sheet->getStyle('A1:D100')->applyFromArray([
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color' => ['argb' => 'FF000000'],
-                ],
-            ],
-        ]);
-
-        // Style untuk total pemasukan (baris terakhir)
-        $lastRow = count($this->collection()) + 1;
-        $sheet->getStyle("A{$lastRow}:D{$lastRow}")->applyFromArray([
             'font' => ['bold' => true],
             'fill' => [
-                'fillType' => Fill::FILL_SOLID,
-                'color' => ['argb' => 'FFFFC107'], // Kuning
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'color' => ['argb' => 'FF4CAF50'],
+            ],
+        ]);
+
+        // Style untuk judul tabel pengeluaran
+        $rowPengeluaranHeader = count(DB::table('pemasukans')->whereBetween('tgl_pemasukan', [$this->start_date, $this->end_date])->get()) + 3;
+        $sheet->getStyle("A{$rowPengeluaranHeader}:D{$rowPengeluaranHeader}")->applyFromArray([
+            'font' => ['bold' => true],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'color' => ['argb' => 'FFFF5733'],
             ],
         ]);
     }
 
     public function title(): string
     {
-        return 'Data Pemasukan';
+        return 'Laporan Keuangan';
     }
 }

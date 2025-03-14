@@ -11,18 +11,32 @@ class PemasukanPDFExport
     public function download()
     {
         // Ambil data pemasukan
-        $data = Pemasukan::select(
-            'pemasukans.id',
-            'pemasukans.tgl_pemasukan',
+        $pemasukan = Pemasukan::select(
+            'pemasukans.tgl_pemasukan as tanggal',
             'pemasukans.jumlah',
-            'sumber_pemasukans.nama as sumber_pemasukan'
+            'sumber_pemasukans.nama as sumber',
+            DB::raw("'Pemasukan' as jenis")
         )
-        ->join('sumber_pemasukans', 'pemasukans.id_sumber_pemasukan', '=', 'sumber_pemasukans.id')
-        ->whereBetween('pemasukans.tgl_pemasukan', [$this->start_date, $this->end_date])
-        ->get();    
+        ->join('sumber_pemasukans', 'pemasukans.id_sumber_pemasukan', '=', 'sumber_pemasukans.id');
+
+        // Ambil data pengeluaran
+        $pengeluaran = Pengeluaran::select(
+            'pengeluarans.tgl_pengeluaran as tanggal',
+            'pengeluarans.jumlah',
+            'sumber_pengeluarans.nama as sumber',
+            DB::raw("'Pengeluaran' as jenis")
+        )
+        ->join('sumber_pengeluarans', 'pengeluarans.id_sumber_pengeluaran', '=', 'sumber_pengeluarans.id');
+
+        // Gabungkan data pemasukan dan pengeluaran
+        $data = $pemasukan->union($pengeluaran)->orderBy('tanggal')->get();
+
+        // Hitung total pemasukan dan pengeluaran
+        $totalPemasukan = $data->where('jenis', 'Pemasukan')->sum('jumlah');
+        $totalPengeluaran = $data->where('jenis', 'Pengeluaran')->sum('jumlah');
 
         // Render data ke view
-        $html = view('exports.pemasukan', compact('data'))->render();
+        $html = view('exports.keuangan', compact('data', 'totalPemasukan', 'totalPengeluaran'))->render();
 
         // Konfigurasi Dompdf
         $options = new Options();
@@ -34,6 +48,7 @@ class PemasukanPDFExport
         $dompdf->render();
 
         // Unduh file PDF
-        return $dompdf->stream('data_pemasukan.pdf', ['Attachment' => true]);
+        return $dompdf->stream('data_keuangan.pdf', ['Attachment' => true]);
     }
 }
+

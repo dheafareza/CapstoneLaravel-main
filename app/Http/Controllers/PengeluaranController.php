@@ -8,11 +8,17 @@ use Illuminate\Http\Request;
 
 class PengeluaranController extends Controller
 {
-    /**
-     * Menampilkan daftar semua pengeluaran.
-     */
-    public function index()
+
+        public function index(Request $request)
     {
+        $query = Pengeluaran::with('sumberPengeluaran');
+
+        // Filter berdasarkan rentang tanggal jika tersedia
+        if ($request->has('start_date') && $request->has('end_date')) {
+            $query->whereBetween('tgl_pengeluaran', [$request->start_date, $request->end_date]);
+        }
+
+        $pengeluaran = $query->paginate(10);
         // Dapatkan data semua sumber pengeluaran
         $sumberPengeluaran= SumberPengeluaran::all()->map(function ($sumber) {
             $total = Pengeluaran::where('id_sumber_pengeluaran', $sumber->id)->sum('jumlah');

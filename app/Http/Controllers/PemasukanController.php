@@ -13,8 +13,18 @@ class PemasukanController extends Controller
     /**
      * Menampilkan daftar semua pemasukan.
      */
-    public function index()
+
+        public function index(Request $request)
     {
+        $query = Pemasukan::with('sumberPemasukan');
+
+        // Filter berdasarkan rentang tanggal jika tersedia
+        if ($request->has('start_date') && $request->has('end_date')) {
+            $query->whereBetween('tgl_pemasukan', [$request->start_date, $request->end_date]);
+        }
+
+        // Ambil data pemasukan dengan paginasi
+        $pemasukan = $query->paginate(10);
         // Dapatkan data semua sumber pemasukan
         $sumberPemasukan= SumberPemasukan::all()->map(function ($sumber) {
             $total = Pemasukan::where('id_sumber_pemasukan', $sumber->id)->sum('jumlah');

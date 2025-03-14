@@ -8,8 +8,7 @@
 
     <!-- Filter Tanggal -->
 <div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Filter Laporan Stok Barang Berdasarkan Tanggal</h6>
+    <div class="card-header py-3">Filter Laporan Stok Barang Berdasarkan Tanggal
     </div>
     <div class="card-body">
         <form action="{{ route('laporan.stok.index') }}" method="GET" class="row g-3">
@@ -32,12 +31,11 @@
 
     <!-- Tabel Laporan Stok Barang -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Detail Stok Barang</h6>
+        <div class="card-header py-3">Detail Stok Barang
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered text-center">
+                <table class="table table-bordered text-center" id="tabelStokBarang">
                     <thead class="table">
                         <tr>
                             <th>Kode Barang</th>
@@ -60,11 +58,35 @@
             </div>
         </div>
     </div>
+<!-- DataTables CSS & JS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 
+<!-- Script DataTables untuk Tabel Stok Barang -->
+<script>
+    $(document).ready(function() {
+        $('#tabelStokBarang').DataTable({
+            "language": {
+                "search": "Cari:",
+                "lengthMenu": "Tampilkan _MENU_ data",
+                "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                "infoEmpty": "Tidak ada data yang tersedia",
+                "zeroRecords": "Tidak ada data yang cocok",
+                "paginate": {
+                    "first": "Awal",
+                    "last": "Akhir",
+                    "next": "Berikutnya",
+                    "previous": "Sebelumnya"
+                }
+            },
+            "pageLength": 10
+        });
+    });
+</script>
     <!-- Tombol Export -->
     <div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Export Laporan</h6>
+    <div class="card-header py-3">Export Laporan
     </div>
     <div class="card-body">
         <div class="row">

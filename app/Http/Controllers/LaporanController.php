@@ -88,40 +88,34 @@ class LaporanController extends Controller
         $startDate = $request->query('start_date', now()->startOfMonth()->toDateString());
         $endDate = $request->query('end_date', now()->endOfMonth()->toDateString());
 
-        return Excel::download(new PemasukanExport($startDate, $endDate), 'Data_Pemasukan.xlsx');
-    }
-
-    public function exportPengeluaran(Request $request)
-    {
-        $startDate = $request->query('start_date', now()->startOfMonth()->toDateString());
-        $endDate = $request->query('end_date', now()->endOfMonth()->toDateString());
-
-        return Excel::download(new PengeluaranExport($startDate, $endDate), 'Data_Pengeluaran.xlsx');
+        return Excel::download(new PemasukanExport($startDate, $endDate), 'Laporan_Keuangan.xlsx');
     }
 
     public function exportPemasukanPDF(Request $request)
-    {
-        $startDate = $request->query('start_date', now()->startOfMonth()->toDateString());
-        $endDate = $request->query('end_date', now()->endOfMonth()->toDateString());
+{
+    $startDate = $request->query('start_date', now()->startOfMonth()->toDateString());
+    $endDate = $request->query('end_date', now()->endOfMonth()->toDateString());
 
-        $pemasukan = Pemasukan::whereBetween('tgl_pemasukan', [$startDate, $endDate])->get();
-        $totalPemasukan = $pemasukan->sum('jumlah');
+    // Ambil data pemasukan
+    $pemasukan = Pemasukan::whereBetween('tgl_pemasukan', [$startDate, $endDate])->get();
+    $totalPemasukan = $pemasukan->sum('jumlah');
 
-        $pdf = Pdf::loadView('exports.pemasukan', compact('pemasukan', 'totalPemasukan', 'startDate', 'endDate'));
+    // Ambil data pengeluaran
+    $pengeluaran = Pengeluaran::whereBetween('tgl_pengeluaran', [$startDate, $endDate])->get();
+    $totalPengeluaran = $pengeluaran->sum('jumlah');
 
-        return $pdf->download('Data_Pemasukan_' . $startDate . '_to_' . $endDate . '.pdf');
-    }
+    // Generate PDF
+    $pdf = Pdf::loadView('exports.pemasukan', compact(
+        'pemasukan',
+        'totalPemasukan',
+        'pengeluaran',
+        'totalPengeluaran',
+        'startDate',
+        'endDate'
+    ));
 
-    public function exportPengeluaranPDF(Request $request)
-    {
-        $startDate = $request->query('start_date', now()->startOfMonth()->toDateString());
-        $endDate = $request->query('end_date', now()->endOfMonth()->toDateString());
+    return $pdf->download('Data_Keuangan_' . $startDate . '_to_' . $endDate . '.pdf');
+}
 
-        $pengeluaran = Pengeluaran::whereBetween('tgl_pengeluaran', [$startDate, $endDate])->get();
-        $totalPengeluaran = $pengeluaran->sum('jumlah');
-
-        $pdf = Pdf::loadView('exports.pengeluaran', compact('pengeluaran', 'totalPengeluaran', 'startDate', 'endDate'));
-
-        return $pdf->download('Data_Pengeluaran_' . $startDate . '_to_' . $endDate . '.pdf');
-    }
+    
 }
