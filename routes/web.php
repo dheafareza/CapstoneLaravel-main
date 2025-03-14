@@ -70,7 +70,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::middleware(['auth', 'role:Owner'])->group(function () {
-    // Route resource untuk Admin (Hanya bisa diakses oleh user yang memiliki akses admin)
+    // Route resource untuk Admin
     Route::resource('admin', AdminController::class);
 
     // Route resource untuk Karyawan

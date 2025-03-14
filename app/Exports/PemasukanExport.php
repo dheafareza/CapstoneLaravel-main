@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\DB;
 class PemasukanExport implements FromCollection, WithHeadings, WithStyles, WithTitle
 {
     protected $start_date, $end_date;
-
+    protected $jumlahPemasukan;
+    
     public function __construct($start_date, $end_date)
     {
         $this->start_date = $start_date;

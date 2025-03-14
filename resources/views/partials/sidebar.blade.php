@@ -122,14 +122,14 @@
   <li class="nav-heading ">Transaksi</li>
 
   <li class="nav-item">
-    <a class="nav-link collapsed" href="{{ route('{{ route('pemasukan.index') }}.index') }}">
+  <a class="nav-link collapsed" href="{{ route('pemasukan.index') }}">
       <i class="bi bi-arrow-up"></i>
       <span style="font-size: 12px; font-family: 'Poppins', sans-serif;">Pendapatan</span>
     </a>
   </li><!-- End Profile Page Nav -->
 
   <li class="nav-item">
-    <a class="nav-link collapsed" href="{{ route('{{ route('pengeluaran.index') }}.index') }}">
+  <a class="nav-link collapsed" href="{{ route('pengeluaran.index') }}">
       <i class="bi bi-arrow-down"></i>
       <span style="font-size: 12px; font-family: 'Poppins', sans-serif;">Pengeluaran</span>
     </a>
@@ -140,7 +140,7 @@
   @if(auth()->user() && in_array(auth()->user()->role->name, ['Owner', 'Admin Stok Barang', 'Management']))
   <li class="nav-heading ">Barang</li>
   <li class="nav-item">
-    <a class="nav-link collapsed" href="stok_barang">
+    <a class="nav-link collapsed" href="{{ route('stok_barang.index') }}">
       <i class="bi bi-bag-check-fill"></i>
       <span style="font-size: 12px; font-family: 'Poppins', sans-serif;">Stok Barang</span>
     </a>
@@ -153,13 +153,13 @@
   <li class="nav-heading ">KARYAWAN</li>
 
   <li class="nav-item">
-    <a class="nav-link collapsed" href="karyawan">
+    <a class="nav-link collapsed" href="{{ route('karyawan.index') }}">
       <i class="bi bi-people-fill"></i>
       <span style="font-size: 12px; font-family: 'Poppins', sans-serif;">Karyawan</span>
     </a>
   </li><!-- End Contact Page Nav -->
   <li class="nav-item">
-    <a class="nav-link collapsed" href="admin">
+    <a class="nav-link collapsed" href="{{ route('admin.index') }}">
       <i class="bi bi-person-fill"></i>
       <span style="font-size: 12px; font-family: 'Poppins', sans-serif;">Akun</span>
     </a>
@@ -192,19 +192,6 @@
   </li><!-- End Login Page Nav -->
   @endif
   <ul class="nav flex-column mt-3 border-bottom"></ul>
-
-  <li class="nav-heading ">Barang</li>
-
-  <li class="nav-item">
-    <a class="nav-link collapsed" href="{{ route('stok_barang.index') }}">
-      <i class="bi bi-bag-check-fill"></i>
-      <span style="font-size: 12px; font-family: 'Poppins', sans-serif;">Stok Barang</span>
-    </a>
-  </li><!-- End Login Page Nav -->
-
-  <div class="toggle-sidebar-btn" id="sidebarToggle">
-<i class="bi bi-chevron-left" id="sidebarToggle"></i>
-</div>
 
 </ul>
 </aside><!-- End Sidebar-->
