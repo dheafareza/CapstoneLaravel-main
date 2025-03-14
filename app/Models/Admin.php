@@ -11,13 +11,13 @@ class Admin extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $table = 'admins'; // Nama tabel di database
+    protected $table = 'admins'; 
 
-    protected $primaryKey = 'id_admin'; // Primary key
+    protected $primaryKey = 'id_admin'; 
 
-    public $timestamps = false; // Nonaktifkan timestamps (created_at & updated_at)
+    public $timestamps = true; 
 
-    protected $fillable = ['nama', 'email', 'password'];
+    protected $fillable = ['nama', 'email', 'role_id', 'password'];
 
     protected $hidden = [
         'password',
@@ -29,6 +29,14 @@ class Admin extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
         ];
     }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id', 'id');
+    }
+    
 }

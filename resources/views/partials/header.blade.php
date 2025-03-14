@@ -178,15 +178,6 @@
     </li>
 
     <li>
-        <a class="dropdown-item d-flex align-items-center" href="admin">
-            <i class="bi bi-person"></i>
-            <span>My Profile</span>
-        </a>
-    </li>
-    <li>
-        <hr class="dropdown-divider">
-    </li>
-    <li>
         <form action="{{ route('logout') }}" method="POST">
             @csrf
             <button type="submit" class="dropdown-item d-flex align-items-center">

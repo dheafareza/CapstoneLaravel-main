@@ -31,7 +31,19 @@
             <label for="email" class="form-label">Email</label>
             <input type="email" class="form-control" id="email" name="email" value="{{ old('email', $admin->email) }}" required>
         </div>
-        
+
+        <div class="mb-3">
+            <label class="form-label" for="role_id">Role</label>
+            <select class="form-control" id="role_id" name="role_id" required>
+                <option value="" disabled selected>Pilih Role</option>
+                @foreach($roles as $role)
+                    <option value="{{ $role->id }}" {{ old('role_id', $admin->role_id) == $role->id ? 'selected' : '' }}>
+                        {{ $role->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
         <div class="mb-3">
             <label for="password" class="form-label">Password (Kosongkan jika tidak ingin mengubah)</label>
             <input type="password" class="form-control" id="password" name="password">

@@ -118,23 +118,38 @@
     </ul>
   </li><!-- End Forms Nav -->
 
+  @if(auth()->user() && in_array(auth()->user()->role->name, ['Owner', 'Admin Keuangan', 'Management']))
   <li class="nav-heading ">Transaksi</li>
 
   <li class="nav-item">
-    <a class="nav-link collapsed" href="{{ route('pemasukan.index') }}">
+    <a class="nav-link collapsed" href="{{ route('{{ route('pemasukan.index') }}.index') }}">
       <i class="bi bi-arrow-up"></i>
       <span style="font-size: 12px; font-family: 'Poppins', sans-serif;">Pendapatan</span>
     </a>
   </li><!-- End Profile Page Nav -->
 
   <li class="nav-item">
-    <a class="nav-link collapsed" href="{{ route('pengeluaran.index') }}">
+    <a class="nav-link collapsed" href="{{ route('{{ route('pengeluaran.index') }}.index') }}">
       <i class="bi bi-arrow-down"></i>
       <span style="font-size: 12px; font-family: 'Poppins', sans-serif;">Pengeluaran</span>
     </a>
   </li><!-- End F.A.Q Page Nav -->
   <ul class="nav flex-column mt-3 border-bottom"></ul>
+  @endif
 
+  @if(auth()->user() && in_array(auth()->user()->role->name, ['Owner', 'Admin Stok Barang', 'Management']))
+  <li class="nav-heading ">Barang</li>
+  <li class="nav-item">
+    <a class="nav-link collapsed" href="stok_barang">
+      <i class="bi bi-bag-check-fill"></i>
+      <span style="font-size: 12px; font-family: 'Poppins', sans-serif;">Stok Barang</span>
+    </a>
+  </li><!-- End Login Page Nav -->
+  <ul class="nav flex-column mt-3 border-bottom"></ul>
+  @endif
+  
+
+  @if(auth()->user() && in_array(auth()->user()->role->name, ['Owner']))
   <li class="nav-heading ">KARYAWAN</li>
 
   <li class="nav-item">
@@ -143,10 +158,17 @@
       <span style="font-size: 12px; font-family: 'Poppins', sans-serif;">Karyawan</span>
     </a>
   </li><!-- End Contact Page Nav -->
+  <li class="nav-item">
+    <a class="nav-link collapsed" href="admin">
+      <i class="bi bi-person-fill"></i>
+      <span style="font-size: 12px; font-family: 'Poppins', sans-serif;">Akun</span>
+    </a>
+  </li><!-- End Contact Page Nav -->
   <ul class="nav flex-column mt-3 border-bottom"></ul>
+  @endif
 
-  <li class="nav-heading ">TAGIHAN</li>
-
+  <li class="nav-heading ">LAPORAN</li>
+  @if(auth()->user() && in_array(auth()->user()->role->name, ['Owner', 'Admin Keuangan', 'Management']))
   <li class="nav-item">
     <a class="nav-link collapsed" href="{{ route('hutang.index') }}">
       <i class="bi bi-bar-chart-fill"></i>
@@ -157,16 +179,18 @@
   <li class="nav-item">
     <a class="nav-link collapsed" href="{{ route('laporan.index') }}">
       <i class="bi bi-table"></i>
-      <span style="font-size: 12px; font-family: 'Poppins', sans-serif;">Laporan</span>
+      <span style="font-size: 12px; font-family: 'Poppins', sans-serif;">Laporan Keuangan</span>
     </a>
   </li><!-- End Login Page Nav -->
-
+  @endif
+  @if(auth()->user() && in_array(auth()->user()->role->name, ['Owner', 'Admin Stok Barang', 'Management']))
   <li class="nav-item">
     <a class="nav-link collapsed" href="{{ route('laporan.stok.index') }}">
       <i class="bi bi-clipboard-data"></i>
       <span style="font-size: 12px; font-family: 'Poppins', sans-serif;">Laporan Stok Barang</span>
     </a>
   </li><!-- End Login Page Nav -->
+  @endif
   <ul class="nav flex-column mt-3 border-bottom"></ul>
 
   <li class="nav-heading ">Barang</li>

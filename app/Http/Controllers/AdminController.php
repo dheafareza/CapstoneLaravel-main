@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Admin;
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -14,7 +15,7 @@ class AdminController extends Controller
      */
     public function index()
     {
-        $admins = Admin::all(); // Mengambil semua data admin
+        $admins = Admin::with('role')->get(); // Mengambil semua data admin
         return view('admin.index', compact('admins'));
     }
 
@@ -23,7 +24,8 @@ class AdminController extends Controller
      */
     public function create()
     {
-        return view('admin.create');
+        $roles = Role::all();
+        return view('admin.create', compact('roles'));
     }
 
     /**
@@ -36,6 +38,7 @@ class AdminController extends Controller
             'nama' => 'required|string|max:255',
             'email' => 'required|email|unique:admins,email',
             'password' => 'required|string|min:6|confirmed',
+            'role_id' => 'required|exists:roles,id',
         ]);
 
         // Simpan ke database
@@ -43,13 +46,14 @@ class AdminController extends Controller
             'nama' => $request->nama,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role_id' => $request->role_id,
         ]);
 
         User::create([
             'name' => $request->nama,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            
+            'role_id' => $request->role_id,
         ]);
 
         // Redirect ke halaman daftar admin dengan pesan sukses
@@ -61,10 +65,10 @@ class AdminController extends Controller
      */
     public function show($id)
     {
-        $admin = Admin::findOrFail($id); // Cari admin berdasarkan ID
+        $admin = Admin::with('role')->findOrFail($id);
         return view('admin.show', compact('admin'));
     }
-
+    
     /**
      * Menampilkan form untuk mengedit data admin.
      */
@@ -72,32 +76,33 @@ class AdminController extends Controller
     {
         $admin = Admin::findOrFail($id); // Cari admin berdasarkan ID
         $admin = User::findOrFail($id);
-        return view('admin.edit', compact('admin'));
+        $roles = Role::all();
+        return view('admin.edit', compact('admin', 'roles'));
     }
 
     /**
      * Memperbarui data admin di database.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id_admin)
     {
-        // Validasi input
         $request->validate([
             'nama' => 'required|string|max:255',
-            'email' => 'required|email|unique:admins,email,' . $id,
+            'email' => 'required|email|unique:admins,email,' . $id_admin . ',id_admin',
             'password' => 'nullable|string|min:6|confirmed',
+            'role_id' => 'required|exists:roles,id',
         ]);
-
-        // Cari admin dan update datanya
-        $admin = Admin::findOrFail($id);
-        $admin->update($request->only(['nama', 'email']));
-        $user = User::where('email', $admin->email)->first();
-        if ($user) {
-            $user->update([
-                'name' => $request->nama,
-                'email' => $request->username,
-            ]);
+    
+        $admin = Admin::where('id_admin', $id_admin)->firstOrFail();
+        $admin->update([
+            'nama' => $request->nama,
+            'email' => $request->email,
+            'role_id' => $request->role_id,
+        ]);
+    
+        if ($request->filled('password')) {
+            $admin->update(['password' => Hash::make($request->password)]);
         }
-        // Redirect ke halaman daftar admin dengan pesan sukses
+    
         return redirect()->route('admin.index')->with('success', 'Data admin berhasil diperbarui.');
     }
 

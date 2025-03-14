@@ -206,7 +206,7 @@
 
             table.rows().every(function() {
                 var row = this.data();
-                var rowDate = new Date(row[1]).getTime(); // Ambil tanggal dari kolom ke-2
+                var rowDate = new Date(row[3]).getTime(); // Ambil tanggal dari kolom ke-4
 
                 if ((isNaN(start) || rowDate >= start) && (isNaN(end) || rowDate <= end)) {
                     this.nodes().to$().show();

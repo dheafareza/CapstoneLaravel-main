@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container">
-    <h1 class="mt-4">Daftar Admin</h1>
+    <h1 class="mt-4">Daftar Akun</h1>
 
     <!-- Tampilkan pesan sukses jika ada -->
     @if (session('success'))
@@ -15,7 +15,7 @@
 
     <!-- Tombol Tambah Admin -->
     <div class="mb-3">
-        <a href="{{ route('admin.create') }}" class="btn btn-primary">Tambah Admin</a>
+        <a href="{{ route('admin.create') }}" class="btn btn-primary">Tambah Akun</a>
     </div>
 
     <!-- Tabel Daftar Admin -->
@@ -25,6 +25,7 @@
                 <th>No</th>
                 <th>Nama</th>
                 <th>Email</th>
+                <th>Role</th>
                 <th>Aksi</th>
             </tr>
         </thead>
@@ -34,6 +35,7 @@
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $item->nama }}</td>
                     <td>{{ $item->email }}</td>
+                    <td>{{ $item->role->name ?? 'Tidak ada role' }}</td>
                     <td>
                         <!-- Tombol Aksi -->
                         <a href="{{ route('admin.show', $item->id_admin) }}" class="btn btn-info btn-sm">Detail</a>
