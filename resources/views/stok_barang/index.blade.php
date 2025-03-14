@@ -20,17 +20,17 @@
                     <!-- Filter Tanggal -->
                     <div class="col-lg-12 col-md-12 mb-4 custom-width-i">
                     <div class="card shadow mb-4">
-                        <div class="card-header py-3">Filter Stok Barang Berdasarkan Tanggal</div>
+                        <div class="card-header py-3">Filter Tanggal</div>
                         <div class="card-body">
                             <form id="filterForm">
                                 <div class="row">
                                     <div class="col-md-4">
                                         <label for="start_date">Tanggal Awal</label>
-                                        <input type="date" class="form-control" id="start_date" name="start_date" value="{{ request('start_date', now()->startOfMonth()->toDateString()) }}" class="form-control">
+                                        <input type="date" class="form-control" id="start_date" name="start_date">
                                     </div>
                                     <div class="col-md-4">
                                         <label for="end_date">Tanggal Akhir</label>
-                                        <input type="date" class="form-control" id="end_date" name="end_date" value="{{ request('end_date', now()->endOfMonth()->toDateString()) }}" class="form-control">
+                                        <input type="date" class="form-control" id="end_date" name="end_date">
                                     </div>
                                     <div class="col-md-4 d-flex align-items-end">
                                         <button type="button" class="btn btn-primary" id="filterBtn">Tampilkan</button>
@@ -162,7 +162,7 @@
 
             table.rows().every(function() {
                 var row = this.data();
-                var rowDate = new Date(row[1]).getTime(); // Ambil tanggal dari kolom ke-2
+                var rowDate = new Date(row[3]).getTime(); // Ambil tanggal dari kolom ke-4
 
                 if ((isNaN(start) || rowDate >= start) && (isNaN(end) || rowDate <= end)) {
                     this.nodes().to$().show();

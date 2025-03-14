@@ -7,12 +7,14 @@ use App\Models\SumberPemasukan;
 use Illuminate\Http\Request;
 use App\Exports\PemasukanExport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Http\Controllers\Controller;
 
 class PemasukanController extends Controller
 {
     /**
      * Menampilkan daftar semua pemasukan.
      */
+
     public function index()
     {
         // Dapatkan data semua sumber pemasukan
