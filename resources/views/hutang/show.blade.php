@@ -41,13 +41,14 @@
             </div>
         </div>
         <div class="card-footer">
+        <a href="{{ route('hutang.index') }}" class="btn btn-secondary btn-sm">Kembali</a>
             <a href="{{ route('hutang.edit', $hutang->id_hutang) }}" class="btn btn-warning btn-sm">Edit</a>
             <form action="{{ route('hutang.destroy', $hutang->id_hutang) }}" method="POST" style="display:inline;">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus hutang ini?')">Hapus</button>
             </form>
-            <a href="{{ route('hutang.index') }}" class="btn btn-secondary btn-sm">Kembali</a>
+            
         </div>
     </div>
 </div>

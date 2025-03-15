@@ -18,13 +18,13 @@
     @endif
 
     <!-- Form Edit Admin -->
-    <form action="{{ route('admin.update', $admin->id) }}" method="POST">
+    <form action="{{ route('admin.update', $admin->id_admin) }}" method="POST">
         @csrf
         @method('PUT')
         
         <div class="mb-3">
             <label for="nama" class="form-label">Nama</label>
-            <input type="text" class="form-control" id="nama" name="nama" value="{{ old('nama', $admin->name) }}" required>
+            <input type="text" class="form-control" id="nama" name="nama" value="{{ old('nama', $admin->nama) }}" required>
         </div>
         
         <div class="mb-3">
@@ -54,7 +54,7 @@
             <input type="password" class="form-control" id="password_confirmation" name="password_confirmation">
         </div>
         
-        <button type="submit" class="btn btn-primary">Update</button>
+        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
         <a href="{{ route('admin.index') }}" class="btn btn-secondary">Batal</a>
     </form>
 </div>

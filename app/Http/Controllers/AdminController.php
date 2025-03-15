@@ -72,13 +72,13 @@ class AdminController extends Controller
     /**
      * Menampilkan form untuk mengedit data admin.
      */
-    public function edit($id)
+    public function edit($id_admin)
     {
-        $admin = Admin::findOrFail($id); // Cari admin berdasarkan ID
-        $admin = User::findOrFail($id);
+        $admin = Admin::findOrFail($id_admin);
         $roles = Role::all();
         return view('admin.edit', compact('admin', 'roles'));
     }
+    
 
     /**
      * Memperbarui data admin di database.
