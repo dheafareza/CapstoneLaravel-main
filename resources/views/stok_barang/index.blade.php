@@ -108,41 +108,7 @@
     </div>
 </div>
 
-<!-- TABEL 2: Total Stok Barang -->
-<div class="card shadow mb-4">
-    <div class="card-header py-3">Total Stok Barang
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table id="tabelTotalStok" class="table table-bordered text-center">
-                <thead>
-                    <tr>
-                        <th>Kode Barang</th>
-                        <th>Nama Barang</th>
-                        <th>Ukuran</th>
-                        <th>Total Stok</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if($totalStok->isEmpty())
-                        <tr>
-                            <td colspan="4" class="text-center">Belum ada data stok barang.</td>
-                        </tr>
-                    @else
-                        @foreach($totalStok as $stok)
-                            <tr>
-                                <td>{{ $stok->kode_barang }}</td>
-                                <td>{{ $stok->nama_barang }}</td>
-                                <td>{{ $stok->ukuran }}</td>
-                                <td>{{ $stok->total_stok }}</td>
-                            </tr>
-                        @endforeach
-                    @endif
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+
 
 <!-- DataTables CSS & JS -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">

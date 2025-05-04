@@ -13,44 +13,49 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class PengeluaranExport implements FromCollection, WithHeadings, WithStyles, WithTitle
 {
-    protected $start_date, $end_date;
+    protected $start_date, $end_date, $sumber;
 
-    public function __construct($start_date, $end_date)
+    public function __construct($start_date, $end_date, $sumber = null)
     {
         $this->start_date = $start_date;
         $this->end_date = $end_date;
+        $this->sumber = $sumber;
     }
 
     public function collection()
     {
-        $pengeluaran = Pengeluaran::select(
-            'pengeluarans.id',
-            'pengeluarans.tgl_pengeluaran',
-            'pengeluarans.jumlah',
-            'sumber_pengeluarans.nama as sumber_pengeluaran'
-        )
-        ->join('sumber_pengeluarans', 'pengeluarans.id_sumber_pengeluaran', '=', 'sumber_pengeluarans.id')
-        ->whereBetween('pengeluarans.tgl_pengeluaran', [$this->start_date, $this->end_date])
-        ->get();
+        $query = DB::table('pengeluarans')
+            ->select(
+                'pengeluarans.tgl_pengeluaran',
+                'pengeluarans.jumlah',
+                'sumber_pengeluarans.nama as sumber'
+            )
+            ->join('sumber_pengeluarans', 'pengeluarans.id_sumber_pengeluaran', '=', 'sumber_pengeluarans.id')
+            ->whereBetween('pengeluarans.tgl_pengeluaran', [$this->start_date, $this->end_date]);
 
-        // Hitung total pengeluaran
-        $totalPengeluaran = $pengeluaran->sum('jumlah');
+        if ($this->sumber) {
+            $query->where('sumber_pengeluarans.nama', 'like', '%' . $this->sumber . '%');
+        }
 
-        // Tambahkan nomor urut ke data pengeluaran
-        $data = $pengeluaran->map(function ($item, $index) {
-            return [
+        $pengeluaran = $query->get();
+
+        $total = $pengeluaran->sum('jumlah');
+
+        $data = collect();
+
+        foreach ($pengeluaran as $index => $item) {
+            $data->push([
                 'No' => $index + 1,
                 'Tgl Pengeluaran' => $item->tgl_pengeluaran,
                 'Jumlah' => $item->jumlah,
-                'Sumber' => $item->sumber_pengeluaran,
-            ];
-        });
+                'Sumber' => $item->sumber,
+            ]);
+        }
 
-        // Tambahkan total pengeluaran di akhir
         $data->push([
             'No' => '',
             'Tgl Pengeluaran' => 'Total Pengeluaran',
-            'Jumlah' => $totalPengeluaran,
+            'Jumlah' => $total,
             'Sumber' => '',
         ]);
 
@@ -65,20 +70,19 @@ class PengeluaranExport implements FromCollection, WithHeadings, WithStyles, Wit
     public function styles(Worksheet $sheet)
     {
         $sheet->getStyle('A1:D1')->applyFromArray([
-            'font' => [
-                'bold' => true,
-                'color' => ['argb' => 'FFFFFFFF'],
-            ],
+            'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
-                'color' => ['argb' => 'FFFF5733'], // Warna merah
+                'color' => ['argb' => 'FFFF5733'],
             ],
             'alignment' => [
                 'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
             ],
         ]);
 
-        $sheet->getStyle('A1:D100')->applyFromArray([
+        $lastRow = count($this->collection()) + 1;
+
+        $sheet->getStyle("A1:D{$lastRow}")->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
@@ -87,13 +91,11 @@ class PengeluaranExport implements FromCollection, WithHeadings, WithStyles, Wit
             ],
         ]);
 
-        // Style untuk total pengeluaran (baris terakhir)
-        $lastRow = count($this->collection()) + 1;
         $sheet->getStyle("A{$lastRow}:D{$lastRow}")->applyFromArray([
             'font' => ['bold' => true],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
-                'color' => ['argb' => 'FFFFC107'], // Warna kuning
+                'color' => ['argb' => 'FFFFC107'],
             ],
         ]);
     }

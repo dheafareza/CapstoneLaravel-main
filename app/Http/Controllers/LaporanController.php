@@ -15,43 +15,89 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class LaporanController extends Controller
 {
     public function index(Request $request)
-    {
-        $startDate = $request->query('start_date', now()->startOfMonth()->toDateString());
-        $endDate = $request->query('end_date', now()->endOfMonth()->toDateString());
+{
+    $startDate = $request->query('start_date', now()->startOfMonth()->toDateString());
+    $endDate = $request->query('end_date', now()->endOfMonth()->toDateString());
+    $tipe = $request->query('tipe');
+    $sumber = $request->query('sumber');
 
-        $pemasukan = Pemasukan::whereBetween('tgl_pemasukan', [$startDate, $endDate])->get();
-        $pengeluaran = Pengeluaran::whereBetween('tgl_pengeluaran', [$startDate, $endDate])->get();
+    // Query awal
+    $pemasukanQuery = Pemasukan::whereBetween('tgl_pemasukan', [$startDate, $endDate]);
+    $pengeluaranQuery = Pengeluaran::whereBetween('tgl_pengeluaran', [$startDate, $endDate]);
 
-        $totalPemasukan = $pemasukan->sum('jumlah');
-        $totalPengeluaran = $pengeluaran->sum('jumlah');
+    // Filter sumber
+    if ($sumber) {
+        $pemasukanQuery->whereHas('sumberPemasukan', function ($q) use ($sumber) {
+            $q->where('nama', 'like', '%' . $sumber . '%');
+        });
 
-        $sumberPemasukan = SumberPemasukan::all()->map(fn($sumber) => $this->hitungSumber($sumber, 'pemasukan', $totalPemasukan));
-        $sumberPengeluaran = SumberPengeluaran::all()->map(fn($sumber) => $this->hitungSumber($sumber, 'pengeluaran', $totalPengeluaran));
+        $pengeluaranQuery->whereHas('sumberPengeluaran', function ($q) use ($sumber) {
+            $q->where('nama', 'like', '%' . $sumber . '%');
+        });
+    }
 
-        $laporanKeuangan = $pemasukan->map(fn($item) => [
+    // Filter tipe
+    if ($tipe == 'Pemasukan') {
+        $pengeluaran = collect();
+        $pemasukan = $pemasukanQuery->get();
+    } elseif ($tipe == 'Pengeluaran') {
+        $pemasukan = collect();
+        $pengeluaran = $pengeluaranQuery->get();
+    } else {
+        $pemasukan = $pemasukanQuery->get();
+        $pengeluaran = $pengeluaranQuery->get();
+    }
+
+    $totalPemasukan = $pemasukan->sum('jumlah');
+    $totalPengeluaran = $pengeluaran->sum('jumlah');
+
+    // Hitung sumber pemasukan
+    $sumberPemasukan = SumberPemasukan::all()->map(function ($sumber) use ($totalPemasukan) {
+        return $this->hitungSumber($sumber, 'pemasukan', $totalPemasukan);
+    });
+
+    // Hitung sumber pengeluaran
+    $sumberPengeluaran = SumberPengeluaran::all()->map(function ($sumber) use ($totalPengeluaran) {
+        return $this->hitungSumber($sumber, 'pengeluaran', $totalPengeluaran);
+    });
+
+    // Gabungkan pemasukan dan pengeluaran
+    $laporanKeuangan = collect();
+
+    foreach ($pemasukan as $item) {
+        $laporanKeuangan->push([
             'tanggal' => $item->tgl_pemasukan,
             'tipe' => 'Pemasukan',
             'sumber' => $item->sumberPemasukan->nama ?? 'Tidak Diketahui',
             'jumlah' => $item->jumlah
-        ])->merge($pengeluaran->map(fn($item) => [
+        ]);
+    }
+
+    foreach ($pengeluaran as $item) {
+        $laporanKeuangan->push([
             'tanggal' => $item->tgl_pengeluaran,
             'tipe' => 'Pengeluaran',
             'sumber' => $item->sumberPengeluaran->nama ?? 'Tidak Diketahui',
             'jumlah' => $item->jumlah
-        ]))->sortByDesc('tanggal');
-
-        return view('laporan.index', compact(
-            'sumberPemasukan',
-            'sumberPengeluaran',
-            'pemasukan',
-            'pengeluaran',
-            'laporanKeuangan',
-            'startDate',
-            'endDate',
-            'totalPemasukan',
-            'totalPengeluaran'
-        ));
+        ]);
     }
+
+    // Urutkan berdasarkan tanggal
+    $laporanKeuangan = $laporanKeuangan->sortByDesc('tanggal');
+
+    return view('laporan.index', compact(
+        'sumberPemasukan',
+        'sumberPengeluaran',
+        'pemasukan',
+        'pengeluaran',
+        'laporanKeuangan',
+        'startDate',
+        'endDate',
+        'totalPemasukan',
+        'totalPengeluaran'
+    ));
+}
+
 
     private function hitungSumber($sumber, $tipe, $totalKeseluruhan)
     {

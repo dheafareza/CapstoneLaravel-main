@@ -13,21 +13,21 @@
     <div class="card-body">
         <form action="{{ route('laporan.stok.index') }}" method="GET" class="row g-3">
             <div class="col-md-4">
-                <label for="start_date" class="form-label">Tanggal Awal</label>
-                <input type="date" name="start_date" value="{{ request('start_date', now()->startOfMonth()->toDateString()) }}" class="form-control">
-            </div>
-            <div class="col-md-4">
-                <label for="end_date" class="form-label">Tanggal Akhir</label>
-                <input type="date" name="end_date" value="{{ request('end_date', now()->endOfMonth()->toDateString()) }}" class="form-control">
-            </div>
-            <div class="col-md-4 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-filter"></i> Tampilkan
-                </button>
-            </div>
-        </form>
+            <label for="end_date" class="form-label">Tanggal Akhir</label>
+                    <input type="date" name="end_date" value="{{ request('end_date', now()->toDateString()) }}" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label for="nama_barang" class="form-label">Nama Barang</label>
+                    <input type="text" name="nama_barang" value="{{ request('nama_barang') }}" class="form-control" placeholder="Cari nama barang">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-filter"></i> Tampilkan
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
     <!-- Tabel Laporan Stok Barang -->
     <div class="card shadow mb-4">
@@ -90,15 +90,11 @@
     </div>
     <div class="card-body">
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <a href="{{ route('laporan.stok.exportExcel', ['start_date' => request('start_date'), 'end_date' => request('end_date')]) }}" class="btn btn-success w-100">
                     <i class="bi bi-file-earmark-excel"></i> Export Excel
                 </a>
-            </div>
-            <div class="col-md-6">
-                <a href="{{ route('laporan.stok.exportPDF', ['start_date' => request('start_date'), 'end_date' => request('end_date')]) }}" class="btn btn-danger w-100">
-                    <i class="bi bi-file-earmark-pdf"></i> Export PDF
-                </a>
+            
             </div>
         </div>
     </div>

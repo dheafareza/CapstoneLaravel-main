@@ -11,101 +11,94 @@ use Illuminate\Support\Facades\DB;
 
 class LaporanStokBarangController extends Controller
 {
-    /**
-     * Tampilkan laporan stok barang.
-     */
     public function index(Request $request)
-{
-    // Ambil nilai start_date dan end_date dari request
-    $start_date = $request->start_date;
-    $end_date = $request->end_date;
+    {
+        $end_date = $request->end_date ?? now()->toDateString();
+        $nama_barang = $request->nama_barang;
 
-    // Query stok barang berdasarkan filter tanggal jika ada
-    $query = StokBarang::query();
+        // Query stok barang berdasarkan filter tanggal akhir dan nama barang
+        $stokBarangs = StokBarang::select(
+            'kode_barang',
+            'nama_barang',
+            'ukuran',
+            DB::raw("SUM(CASE 
+                        WHEN tipe = 'In' THEN quantity 
+                        WHEN tipe = 'Out' THEN -quantity 
+                        ELSE 0 END) as total_stok")
+        )
+        ->whereDate('tanggal', '<=', $end_date)
+        ->when($nama_barang, function ($query) use ($nama_barang) {
+            $query->where('nama_barang', 'like', '%' . $nama_barang . '%');
+        })
+        ->groupBy('kode_barang', 'nama_barang', 'ukuran')
+        ->havingRaw('total_stok > 0')
+        ->get();
 
-    if ($start_date && $end_date) {
-        $query->whereBetween('tanggal', [$start_date, $end_date]);
+        // Hitung total masuk dan keluar
+        $jumlahMasuk = StokBarang::where('tipe', 'In')
+            ->whereDate('tanggal', '<=', $end_date)
+            ->when($nama_barang, function ($query) use ($nama_barang) {
+                $query->where('nama_barang', 'like', '%' . $nama_barang . '%');
+            })
+            ->sum('quantity');
+
+        $jumlahKeluar = StokBarang::where('tipe', 'Out')
+            ->whereDate('tanggal', '<=', $end_date)
+            ->when($nama_barang, function ($query) use ($nama_barang) {
+                $query->where('nama_barang', 'like', '%' . $nama_barang . '%');
+            })
+            ->sum('quantity');
+
+        $totalTransaksiMasuk = StokBarang::where('tipe', 'In')
+            ->whereDate('tanggal', '<=', $end_date)
+            ->when($nama_barang, function ($query) use ($nama_barang) {
+                $query->where('nama_barang', 'like', '%' . $nama_barang . '%');
+            })
+            ->count();
+
+        $totalTransaksiKeluar = StokBarang::where('tipe', 'Out')
+            ->whereDate('tanggal', '<=', $end_date)
+            ->when($nama_barang, function ($query) use ($nama_barang) {
+                $query->where('nama_barang', 'like', '%' . $nama_barang . '%');
+            })
+            ->count();
+
+        return view('laporan.stok_barang', compact(
+            'stokBarangs',
+            'jumlahMasuk',
+            'jumlahKeluar',
+            'totalTransaksiMasuk',
+            'totalTransaksiKeluar'
+        ));
     }
-
-    // Hitung total stok per barang
-    $stokBarangs = StokBarang::select(
-        'kode_barang',
-        'nama_barang',
-        'ukuran',
-        DB::raw("SUM(CASE 
-                    WHEN tipe = 'In' THEN quantity 
-                    WHEN tipe = 'Out' THEN -quantity 
-                    ELSE 0 END) as total_stok")
-    )
-    ->when($start_date && $end_date, function ($q) use ($start_date, $end_date) {
-        $q->whereBetween('tanggal', [$start_date, $end_date]);
-    })
-    ->groupBy('kode_barang', 'nama_barang', 'ukuran')
-    ->havingRaw('total_stok > 0') // Hanya tampilkan yang masih ada stoknya
-    ->get();
-
-    // Hitung total barang masuk & keluar
-    $jumlahMasuk = StokBarang::where('tipe', 'In')
-        ->when($start_date && $end_date, function ($q) use ($start_date, $end_date) {
-            $q->whereBetween('tanggal', [$start_date, $end_date]);
-        })
-        ->sum('quantity');
-
-    $jumlahKeluar = StokBarang::where('tipe', 'Out')
-        ->when($start_date && $end_date, function ($q) use ($start_date, $end_date) {
-            $q->whereBetween('tanggal', [$start_date, $end_date]);
-        })
-        ->sum('quantity');
-
-    // Hitung total transaksi masuk & keluar
-    $totalTransaksiMasuk = StokBarang::where('tipe', 'In')
-        ->when($start_date && $end_date, function ($q) use ($start_date, $end_date) {
-            $q->whereBetween('tanggal', [$start_date, $end_date]);
-        })
-        ->count();
-
-    $totalTransaksiKeluar = StokBarang::where('tipe', 'Out')
-        ->when($start_date && $end_date, function ($q) use ($start_date, $end_date) {
-            $q->whereBetween('tanggal', [$start_date, $end_date]);
-        })
-        ->count();
-
-    return view('laporan.stok_barang', compact(
-        'stokBarangs',
-        'jumlahMasuk',
-        'jumlahKeluar',
-        'totalTransaksiMasuk',
-        'totalTransaksiKeluar'
-    ));
-}
-
 
     /**
      * Export laporan stok barang ke Excel.
      */
     public function exportExcel(Request $request)
-{
-    $startDate = $request->query('start_date', now()->startOfMonth()->toDateString());
-    $endDate = $request->query('end_date', now()->endOfMonth()->toDateString());
+    {
+        $endDate = $request->query('end_date', now()->toDateString());
+        $namaBarang = $request->query('nama_barang');
 
-    return Excel::download(new StokBarangExport($startDate, $endDate), 'Laporan_Stok_Barang.xlsx');
-}
+        return Excel::download(new StokBarangExport($endDate, $namaBarang), 'Laporan_Stok_Barang.xlsx');
+    }
 
     /**
      * Export laporan stok barang ke PDF.
      */
     public function exportPDF(Request $request)
     {
-        // Ambil tanggal dari request (default: awal dan akhir bulan ini)
-        $startDate = $request->query('start_date', now()->startOfMonth()->toDateString());
-        $endDate = $request->query('end_date', now()->endOfMonth()->toDateString());
-    
-        // Query stok barang berdasarkan rentang tanggal yang dipilih
-        $stok_barang = StokBarang::whereBetween('tanggal', [$startDate, $endDate])->get();
-    
-        // Generate PDF dengan data yang telah difilter
-        $pdf = Pdf::loadView('exports.laporan_stok_barang', compact('stok_barang', 'startDate', 'endDate'));
-    
-        return $pdf->download("Laporan_Stok_Barang_{$startDate}_to_{$endDate}.pdf");
+        $endDate = $request->query('end_date', now()->toDateString());
+        $namaBarang = $request->query('nama_barang');
+
+        $stok_barang = StokBarang::whereDate('tanggal', '<=', $endDate)
+            ->when($namaBarang, function ($query) use ($namaBarang) {
+                $query->where('nama_barang', 'like', '%' . $namaBarang . '%');
+            })
+            ->get();
+
+        $pdf = Pdf::loadView('exports.laporan_stok_barang', compact('stok_barang', 'endDate', 'namaBarang'));
+
+        return $pdf->download("Laporan_Stok_Barang_sampai_{$endDate}.pdf");
     }
 }
