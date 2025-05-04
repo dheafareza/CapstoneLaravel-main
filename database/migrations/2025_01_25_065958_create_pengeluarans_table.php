@@ -18,6 +18,11 @@ class CreatePengeluaransTable extends Migration
             $table->date('tgl_pengeluaran');
             $table->integer('jumlah'); // Jumlah pengeluaran
             $table->unsignedBigInteger('id_sumber_pengeluaran'); // Foreign key ke tabel sumber_pengeluarans
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->foreign('created_by') 
+            ->references('id')
+            ->on('users')
+            ->onDelete('cascade');
             $table->timestamps();
 
             // Foreign key constraint

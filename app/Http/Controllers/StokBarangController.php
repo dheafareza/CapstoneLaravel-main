@@ -19,7 +19,7 @@ class StokBarangController extends Controller
     {
         
         // Ambil semua transaksi barang masuk/keluar
-        $stokBarangs = StokBarang::all();
+        $stokBarangs = StokBarang::with('createdBy')->get();
     
         // Hitung total stok berdasarkan transaksi
         $totalStok = StokBarang::select(
@@ -60,6 +60,9 @@ class StokBarangController extends Controller
             'tipe' => 'required|in:In,Out',
             'quantity' => 'required|integer|min:1',
         ]);
+
+        $data = $request->all();
+        $data['created_by'] = auth()->id();
     
         $stokSebelumnya = StokBarang::where('kode_barang', $request->kode_barang)
         ->where('nama_barang', $request->nama_barang)
@@ -78,11 +81,11 @@ class StokBarangController extends Controller
             'tipe' => $request->tipe,
             'quantity' => $request->quantity,
             'total_stok' => $total_stok,
+            'created_by' => auth()->id(),
         ]);
     
         return redirect()->route('stok_barang.index')->with('success', 'Stok barang berhasil ditambahkan.');
     }
-    
     
 
     /**

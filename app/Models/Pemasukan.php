@@ -20,6 +20,7 @@ class Pemasukan extends Model
         'tgl_pemasukan',
         'jumlah',
         'id_sumber_pemasukan',
+        'created_by', 
     ];
 
     public $timestamps = false;
@@ -32,4 +33,11 @@ class Pemasukan extends Model
     {
         return $this->belongsTo(SumberPemasukan::class, 'id_sumber_pemasukan', 'id');
     }
+
+    // Menambahkan relasi dengan model User
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
 }

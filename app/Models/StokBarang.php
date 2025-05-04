@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class StokBarang extends Model
 {
@@ -22,8 +23,14 @@ class StokBarang extends Model
         'tipe',
         'quantity',
         'total_stok',
+        'created_by',
     ];
 
     public $timestamps = true;
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 
 }

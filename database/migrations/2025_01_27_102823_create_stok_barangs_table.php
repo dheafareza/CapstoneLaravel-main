@@ -21,7 +21,8 @@ class CreateStokBarangsTable extends Migration
             $table->date('tanggal');
             $table->string('tipe'); //In / Out
             $table->integer('quantity'); // Jumlah barang yang In / Out
-            $table->integer('total_stok'); 
+            $table->integer('total_stok');
+            $table->string('created_by')->nullable();
             $table->timestamps(); 
         });
     }

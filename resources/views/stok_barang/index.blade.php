@@ -75,6 +75,7 @@
                         <th>Tanggal</th>
                         <th>Tipe</th>
                         <th>Quantity</th>
+                        <th>Akun</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -87,6 +88,7 @@
                             <td>{{ $stokBarang->tanggal }}</td>
                             <td>{{ $stokBarang->tipe }}</td>
                             <td>{{ $stokBarang->quantity }}</td>
+                            <td>{{ $stokBarang->createdBy->name ?? '-' }}</td>
                             <td>
                                 <a href="{{ route('stok_barang.show', $stokBarang->id) }}" class="btn btn-info btn-sm">Detail</a>
                                 <a href="{{ route('stok_barang.edit', $stokBarang->id) }}" class="btn btn-warning btn-sm">Edit</a>

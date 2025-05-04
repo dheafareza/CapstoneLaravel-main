@@ -13,14 +13,17 @@ class CreatePemasukansTable extends Migration
             $table->date('tgl_pemasukan');
             $table->integer('jumlah'); // Jumlah pemasukan
             $table->unsignedBigInteger('id_sumber_pemasukan'); // Foreign key ke tabel sumber_pemasukans
+            $table->unsignedBigInteger('created_by')->nullable();
             $table->foreign('id_sumber_pemasukan')
                   ->references('id')
                   ->on('sumber_pemasukans')
                   ->onDelete('cascade'); // Referential integrity
+            $table->foreign('created_by') 
+                  ->references('id')
+                  ->on('users')
+                  ->onDelete('cascade'); 
             $table->timestamps();
         });
-        
-        
     }
 
     public function down()

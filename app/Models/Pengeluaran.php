@@ -20,6 +20,7 @@ class Pengeluaran extends Model
         'tgl_pengeluaran',
         'jumlah',
         'id_sumber_pengeluaran',
+        'created_by', 
     ];
 
     public $timestamps = true;
@@ -31,5 +32,10 @@ class Pengeluaran extends Model
     public function sumberPengeluaran()
     {
         return $this->belongsTo(SumberPengeluaran::class, 'id_sumber_pengeluaran', 'id');
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }
