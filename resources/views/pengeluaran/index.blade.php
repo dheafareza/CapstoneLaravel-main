@@ -56,6 +56,7 @@
                             <th>Tanggal</th>
                             <th>Jumlah</th>
                             <th>Sumber</th>
+                            <th>Akun</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -66,6 +67,7 @@
                                 <td>{{ $item->tgl_pengeluaran }}</td>
                                 <td>{{ number_format($item->jumlah, 0, ',', '.') }}</td>
                                 <td>{{ $item->sumberpengeluaran->nama ?? '-' }}</td>
+                                <td>{{ $item->createdBy->name ?? '-' }}</td>
                                 <td>
                                     <a href="{{ route('pengeluaran.show', $item->id) }}" class="btn btn-outline-primary">Detail</a>
                                     <a href="{{ route('pengeluaran.edit', $item->id) }}" class="btn btn-outline-warning">Edit</a>

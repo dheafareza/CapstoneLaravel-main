@@ -15,22 +15,13 @@
 
 <section class="section dashboard">
   <div class="row">
-
+  @if(auth()->user() && in_array(auth()->user()->role->name, ['Owner', 'Admin Keuangan', 'Management']))
     <!-- Row 1: Cards PENDAPATAN, PENGELUARAN, SISA UANG, dan KARYAWAN -->
     <div class="col-12">
       <div class="row">
         <!-- Pendapatan Card -->
         <div class="col-lg-3 col-md-6 mb-4">
           <div class="card info-card sales-card">
-            <!-- <div class="filter">
-              <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <li class="dropdown-header text-start"><h6>Filter</h6></li>
-                <li><a class="dropdown-item" href="#">Today</a></li>
-                <li><a class="dropdown-item" href="#">This Month</a></li>
-                <li><a class="dropdown-item" href="#">This Year</a></li>
-              </ul>
-            </div> -->
             <div class="card custom-border-left no-shadow shadow h-100 py-2">
               <div class="card-body">
                   <h5 class="card-title">PENDAPATAN <span>| HARI INI</span></h5>
@@ -52,12 +43,12 @@
           </div>
           <style>
               .custom-border-left {
-                  border-left: 4px solid rgb(28, 200, 138); /* Warna dan lebar garis sesuai permintaan */
+                  border-left: 4px solid rgb(28, 200, 138); 
               }
               .no-shadow {
-                  /* box-shadow: none; Hilangkan bayangan */
-                  margin-bottom: 0; /* Hilangkan margin bawah */
-                  padding-bottom: 0; /* Hilangkan padding bawah */
+                  
+                  margin-bottom: 0; 
+                  padding-bottom: 0; 
               }
           </style>
           </div>
@@ -128,7 +119,7 @@
                                         $value = 1;
                                     } else {
                                         $warna = 'info';
-                                        $value = min(100, $uang / 10000); // Batas maksimum 100%
+                                        $value = min(100, $uang / 10000); 
                                     }
                                 @endphp
                                 <div class="progress-bar bg-{{ $warna }} custom-progress-bar" role="progressbar" 
@@ -305,9 +296,9 @@
                         },
                         xAxis: {
                             type: 'category',
-                            data: {!! json_encode($chartLabels) !!}, // Nama bulan/tanggal
+                            data: {!! json_encode($chartLabels) !!}, 
                             axisLabel: {
-                                rotate: 30, // Memiringkan label biar rapi
+                                rotate: 30,
                                 fontSize: 12
                             }
                         },
@@ -315,18 +306,148 @@
                             type: 'value',
                             axisLabel: {
                                 formatter: function(value) {
-                                    return 'Rp ' + value.toLocaleString('id-ID'); // Format angka ke Rupiah
+                                    return 'Rp ' + value.toLocaleString('id-ID'); 
                                 }
                             }
                         },
                         series: [{
                             name: 'Pendapatan',
                             type: 'line',
-                            data: {!! json_encode($chartData) !!}, // Data pemasukan
+                            data: {!! json_encode($chartData) !!}, 
                             smooth: true,
                             color: 'rgb(46, 202, 106)',
                             lineStyle: { width: 3 },
-                            areaStyle: { opacity: 0.2 } // Efek area bawah garis
+                            areaStyle: { opacity: 0.2 } 
+                        }]
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</div>
+@endif
+
+<div class="row">
+  @if(auth()->user() && in_array(auth()->user()->role->name, ['Admin Stok Barang']))
+    <!-- Row 1: Cards PENDAPATAN, PENGELUARAN, SISA UANG, dan KARYAWAN -->
+    <div class="col-12">
+      <div class="row">
+        <!-- Pendapatan Card -->
+        <div class="col-lg-3 col-md-6 mb-4">
+          <div class="card info-card sales-card">
+            <div class="card custom-border-left no-shadow shadow h-100 py-2">
+              <div class="card-body">
+                  <h5 class="card-title">TOTAL BARANG MASUK</h5>
+                  <div class="d-flex align-items-center">
+                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                          <i class="bi bi-calendar"></i>
+                      </div>
+                      <div class="ps-3">
+                          <h6>
+                              {{ number_format($totalStokValue) }}
+                          </h6>
+                      </div>
+                  </div>
+                  <div class="mt-4">
+                        <span class="text-muted small pt-2 ps-1">Hari Ini:</span>
+                        <span class="text-success small pt-1 fw-bold"> {{ number_format($totalBarangMasukHariIniValue) }}</span>
+                    </div>
+              </div>
+          </div>
+          <style>
+              .custom-border-left {
+                  border-left: 4px solid rgb(28, 200, 138); 
+              }
+              .no-shadow {
+                  
+                  margin-bottom: 0; 
+                  padding-bottom: 0; 
+              }
+          </style>
+          </div>
+        </div>
+        <!-- End Pendapatan Card -->
+
+        <!-- Pengeluaran Card -->
+        <div class="col-lg-3 col-md-6 mb-4">
+          <div class="card info-card revenue-card">
+              <div class="card custom-border-left-2 no-shadow shadow h-100 py-2">
+                  <div class="card-body">
+                      <h5 class="card-title">TOTAL BARANG KELUAR</h5>
+                      <div class="d-flex align-items-center">
+                          <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                              <i class="bi bi-currency-dollar"></i>
+                          </div>
+                          <div class="ps-3">
+                          <h6>
+                          {{ number_format($totalStokKeluarValue) }}
+                          </h6>
+                        </div>
+                      </div>
+                      <div class="mt-4">
+                        <span class="text-muted small pt-2 ps-1">Hari Ini:</span>
+                        <span class="text-success small pt-1 fw-bold"> {{ number_format($totalBarangKeluarHariIniValue) }}</span>
+                    </div>
+                      <style>
+                          .custom-border-left-2 {
+                              border-left: 4px solid rgb(231, 74, 59); 
+                          }
+                          .no-shadow {
+                              margin-bottom: 0; 
+                              padding-bottom: 0; 
+                          }
+                      </style>
+                  </div>
+              </div>
+          </div>
+      </div>
+        <!-- End Pengeluaran Card -->
+        <div class="col-lg-8">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Grafik Barang Masuk dan Keluar Bulanan</h5>
+            <div id="barangChart" style="min-height: 400px;" class="echart"></div>
+            <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    echarts.init(document.querySelector("#barangChart")).setOption({
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data: ['Barang Masuk', 'Barang Keluar']
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: {!! json_encode($chartLabels) !!}, 
+                            axisLabel: {
+                                rotate: 30,
+                                fontSize: 12
+                            }
+                        },
+                        yAxis: {
+                            type: 'value',
+                            axisLabel: {
+                                formatter: function(value) {
+                                    return value.toLocaleString('id-ID');
+                                }
+                            }
+                        },
+                        series: [{
+                            name: 'Barang Masuk',
+                            type: 'line',
+                            data: {!! json_encode($barangMasukData) !!}, 
+                            smooth: true,
+                            color: 'rgb(46, 202, 106)',
+                            lineStyle: { width: 3 },
+                            areaStyle: { opacity: 0.2 } 
+                        }, {
+                            name: 'Barang Keluar',
+                            type: 'line',
+                            data: {!! json_encode($barangKeluarData) !!}, 
+                            smooth: true,
+                            color: 'rgb(255, 99, 132)',
+                            lineStyle: { width: 3 },
+                            areaStyle: { opacity: 0.2 } 
                         }]
                     });
                 });
@@ -335,6 +456,8 @@
     </div>
 </div>
 
+         @endif
+         
 </div>
         </div>
         

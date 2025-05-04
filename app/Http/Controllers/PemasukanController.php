@@ -70,18 +70,21 @@ class PemasukanController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi input
-        $request->validate([
-            'tgl_pemasukan' => 'required|date',
-            'jumlah' => 'required|numeric|min:0',
-            'id_sumber_pemasukan' => 'required|exists:sumber_pemasukans,id',
-        ]);
+    // Validasi input
+    $request->validate([
+        'tgl_pemasukan' => 'required|date',
+        'jumlah' => 'required|numeric|min:0',
+        'id_sumber_pemasukan' => 'required|exists:sumber_pemasukans,id',
+    ]);
 
-        // Simpan ke database
-        Pemasukan::create($request->all());
+    $data = $request->all();
+    $data['created_by'] = auth()->id();
 
-        // Redirect ke halaman daftar pemasukan dengan pesan sukses
-        return redirect()->route('pemasukan.index')->with('success', 'Pemasukan berhasil ditambahkan.');
+    // Simpan ke database
+    Pemasukan::create($data);
+
+    // Redirect ke halaman daftar pemasukan dengan pesan sukses
+    return redirect()->route('pemasukan.index')->with('success', 'Pemasukan berhasil ditambahkan.');
     }
 
     /**

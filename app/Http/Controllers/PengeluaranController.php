@@ -69,8 +69,11 @@ class PengeluaranController extends Controller
             'id_sumber_pengeluaran' => 'required|exists:sumber_pengeluarans,id',
         ]);
 
+        $data = $request->all();
+        $data['created_by'] = auth()->id();
+
         // Simpan ke database
-        Pengeluaran::create($request->all());
+        Pengeluaran::create($data);
 
         // Redirect ke halaman daftar pengeluaran dengan pesan sukses
         return redirect()->route('pengeluaran.index')->with('success', 'Pengeluaran berhasil ditambahkan.');
